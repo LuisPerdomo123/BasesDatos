@@ -52,16 +52,30 @@ from listado
 
 --DESARROLLO DE CONSULTAS
 
---31. Cuál es el libro que más se presta, y que no es referenciado por asignaturas
+--31. Cuál es el libro que más se presta, y que no es referenciado por asignaturas (Debe ser corregida)
+
+select * from presta ;
+select * from libros;
 
 drop view l_libros_1;
+
 create temporary view l_libros_1 as
+
 select distinct isbn, count(isbn) list from presta group by isbn
 except
 select distinct isbn, count(isbn) list from referencia natural join asignaturas group by isbn;
 select * from l_libros_1;
 
 select * from l_libros_1 order by list desc limit 1;
+select * from l_libros_1 natural join libros order by list desc limit 1;
+select * from l_libros_1 natural join libros where list=(select max(list) from l_libros_1);
+
+
+--
+
+select isbn, count(isbn) list from presta 
+where isbn not in (select distinct isbn from referencia) group by isbn;
+
 
 --32. Nombre de los estudiantes que tienen el promedio de notas mayor a 4.0
 
@@ -117,7 +131,7 @@ select * from titulo_ejemplares;
 select * from titulo_ejemplares order by ejem desc limit 1;
 
 
---37. Cuáles son las asignaturas que referencian libros y no se ha prestado ninguno de ellos
+--37. Cuáles son las asignaturas que referencian libros y no se ha prestado ninguno de ellos (Debe ser corregida)
 
 drop view lib_ref_asig ;
 create temporary view lib_ref_asig as

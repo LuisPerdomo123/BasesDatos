@@ -131,7 +131,18 @@ select * from l_profesores_3;
 select nom_p, avg(asig_perd),sum(asig_perd) from l_profesores_3 group by nom_p;
 
 -- Corregido
+create temporary view v_v1 as
 
+	with p_28 as
+		(with def as
+			(select *, coalesce(n1,0)*0.35+coalesce(n2,0)*0.35+coalesce(n3,0)*0.30 def from inscribe),
+		total as
+			(select id_p, count(*) c_t from inscribe group by id_p),
+		pierde as
+			(select id_p, count(*) c_p from def where def < 3 group by id_p)
+		select id_p, nom_p, c_p*100/c_t porc from pierde natural join total natural join profesores)
+	select id_p, nom_p from p_28 where porc=(select max(porc) from p_28);
+select * from v_v1
 
 
 --29. Cuál es la asignatura con mayor cantidad de estudiantes inscritos
@@ -143,13 +154,16 @@ select * from l_asignaturas;
 
 select * from l_asignaturas order by estu desc limit 1;
 
---30. Nombre del autor referenciado por más asignaturas diferentes
+--30. Nombre del autor referenciado por más asignaturas diferentes (Debe ser corregida)
 
 select * from autores natural join escribe natural join libros natural join referencia natural join asignaturas;
 
 drop view l_autores_1;
 create temporary view l_autores_1 as
-select distinct nom_autor,count(distinct nom_a)asi from autores natural join escribe natural join libros natural join referencia natural join asignaturas group by nom_autor;
+
+select distinct nom_autor,count(distinct cod_a)asi from autores natural join escribe natural join referencia 
+group by nom_autor;
+
 select * from l_autores_1;
 
-select * from l_autores_1 order by asi desc limit 1;
+select * from l_autores_1 order by asi desc where asi max(asi);
